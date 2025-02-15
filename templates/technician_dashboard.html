@@ -63,7 +63,7 @@
     <a href="{% url 'technician_dashboard' %}"><i class="fas fa-home"></i> <span>Home</span></a>
 
     
-    <a href="#" onclick="openModal()" ><i class="fas fa-tools" ></i><span>Add Service</span</a>
+    <a href="#" onclick="openModal()" ><i class="fas fa-tools" ></i><span>Add Service</span></a>
    
     <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
   </div>
@@ -114,7 +114,7 @@
     <h3 class="mt-0 mb-2">Tasks</h3>
     <div class="navbar">
       <div class="nav-left">
-        <a href="{% url 'switch_tasks'  %}" class="filter-option {% if current_filter != 'Assigned' and current_filter != 'Pending' and current_filter != 'Completed' %}selected{% endif %}">All Tasks</a>
+        <a href="{% url 'switch_tasks' %}" class="filter-option {% if current_filter != 'Assigned' and current_filter != 'Pending' and current_filter != 'Completed' %}selected{% endif %}">All Tasks</a>
         <a href="{% url 'switch_tasks_filter' status='Assigned' %}" class="filter-option {% if current_filter == 'Assigned' %}selected{% endif %}">Assigned</a>
         <a href="{% url 'switch_tasks_filter' status='Pending' %}" class="filter-option {% if current_filter == 'Pending' %}selected{% endif %}">Pending</a>
         <a href="{% url 'switch_tasks_filter' status='Completed' %}" class="filter-option {% if current_filter == 'Completed' %}selected{% endif %}">Completed</a>
@@ -334,51 +334,48 @@
         
       </tr>
       
-<!-- Update Status Modal -->
-{% if service.current_status_entries.last %}
-    <div class="modal " id="updateStatusModal{{ service.id }}">
-      <div class="addmodal">
-        <div class="modal-dialog" >
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Status</h5>
-                    <button type="button" class="close" onclick="closeUpdateStatusModal( {{service.id }} )">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                  <form id="updateStatusForm{{ service.id }}" data-service-id="{{ service.id }}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="technician_name{{ service.id }}" class="form-label">Technician Name</label>
-                        <input type="text" class="form-control" id="technician_name{{ service.id }}" name="technician_name" value="{{ request.user.username }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date{{ service.id }}" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date{{ service.id }}" name="date" value="{{ service.estimated_date|date:'Y-m-d'|default:'' }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="status{{ service.id }}" class="form-label">Status</label>
-                        <select class="form-control" id="status{{ service.id }}" name="status" required>
-                            <option value="Assigned" {% if service.current_status_entries.last.status == 'Assigned' %}selected{% endif %}>Assigned</option>
-                            <option value="Pending" {% if service.current_status_entries.last.status == 'Pending' %}selected{% endif %}>Pending</option>
-                            <option value="Completed" {% if service.current_status_entries.last.status == 'Completed' %}selected{% endif %}>Completed</option>
-                        </select>
-                    </div>
-                    <div class="text-end">
-                      <button type="submit" class="btn btn-primary">Update</button>
+      {% if service.current_status_entries.last %}
+      <div class="modal" id="updateStatusModal{{ service.id }}">
+        <div class="addmodal">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title">Update Status</h5>
+                      <button type="button" class="close" onclick="closeUpdateStatusModal({{ service.id }})">
+                          <span>&times;</span>
+                      </button>
                   </div>
+                  <div class="modal-body">
+                    <form id="updateStatusForm{{ service.id }}" data-service-id="{{ service.id }}">
+                      {% csrf_token %}
+                      <div class="mb-3">
+                          <label for="technician_name{{ service.id }}" class="form-label">Technician Name</label>
+                          <input type="text" class="form-control" id="technician_name{{ service.id }}" name="technician_name" value="{{ request.user.username }}" readonly>
+                      </div>
+                      <div class="mb-3">
+                          <label for="date{{ service.id }}" class="form-label">Date</label>
+                          <input type="date" class="form-control" id="date{{ service.id }}" name="date" 
+                                 value="{{ service.current_status_entries.last.date|default:current_date|date:'Y-m-d' }}" required readonly>
+                      </div>
+                      <div class="mb-3">
+                          <label for="status{{ service.id }}" class="form-label">Status</label>
+                          <select class="form-control" id="status{{ service.id }}" name="status" required>
+                              <option value="Completed" selected>Completed</option>
+                          </select>
+                      </div>
+                      <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                  </form>
                   
-                </form>
-                
-                <!-- Success/Error Messages -->
-                <div id="statusMessage{{ service.id }}" class="mt-2"></div>
-                </div>
-            </div>
-        </div>
+                  <!-- Success/Error Messages -->
+                  <div id="statusMessage{{ service.id }}" class="mt-2"></div>
+                  </div>
+              </div>
+          </div>
+        </div>--
       </div>
-    </div>
-{% endif %}
+  {% endif %}
 
 {% endfor %}
 </tbody>

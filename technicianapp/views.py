@@ -252,25 +252,25 @@ def get_users(request):
 def update_current_status(request, apply_id):
     if request.method == 'POST':
         try:
-            apply = get_object_or_404(Apply, id=apply_id)  
+            apply = get_object_or_404(Apply, id=apply_id)
 
-            # Get latest status entry
+            # Get the latest status entry
             latest_status = apply.current_status_entries.order_by('-date').first()
 
             if latest_status:
-                new_status = request.POST.get('status', 'Pending')  # Default to "Pending"
-                status_date = request.POST.get('date', now().date())  # Use today's date if none is provided
+                new_status = request.POST.get('status', 'Completed')  # Default to "Completed"
+                status_date = latest_status.date or now().date()  # Fix date after first update
 
                 latest_status.status = new_status
-                latest_status.date = status_date
-                latest_status.technician_name = request.user.username  # Assign logged-in user
+                latest_status.date = status_date  # Keep existing date after update
+                latest_status.technician_name = request.user.username
                 latest_status.save()
 
                 # Also update Apply model
                 apply.status = new_status
                 apply.save()
 
-                return JsonResponse({"success": True, "status": new_status})
+                return JsonResponse({"success": True, "status": new_status, "date": status_date.strftime("%Y-%m-%d")})
             else:
                 return JsonResponse({"error": "No existing status entry found"}, status=400)
 
@@ -278,7 +278,6 @@ def update_current_status(request, apply_id):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
-
 
 def update_customer(request, customer_id):
     if request.method == 'POST':
